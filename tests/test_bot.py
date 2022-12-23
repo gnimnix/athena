@@ -1,6 +1,7 @@
-from subprocess import getstatusoutput
-
-
-def test_bot():
-    rv, out = getstatusoutput(f"python -m athena run")
-    assert rv == 0
+def test_db():
+    from athena import get_db
+    db = get_db()
+    assert db == {}
+    
+    import athena.config
+    print("DB PATH:", athena.config.DATABASE)
