@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "athena"
+version = "0.0.1a"
+authors = [
+  { name="Lu Xinming", email="lu_xinming@rvhs.edu.sg" },
+]
+description = "Telegram Bot for 36 SCE"
+readme = "README.md"
