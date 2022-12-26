@@ -4,10 +4,8 @@ load_dotenv()
 
 import os
 
-from threading import Event
-from typing import Optional
 
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
 from athena.log import get_logger
 
@@ -40,6 +38,18 @@ def start_bot() -> None:
     from athena.app import start, user_help
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('help', user_help))
+    
+    
+    from athena.sft import (sft_submenu_start,
+                            AddSFTConversationHandler as add_sft_conv_handler)
+    dispatcher.add_handler(CallbackQueryHandler(sft_submenu_start, pattern="^manage sft$"))
+    dispatcher.add_handler(add_sft_conv_handler())
+
+    
+    from athena.auth import (RegisterConversationHandler as register_conv_handler,
+                             ApproveApplicationConversationHandler as approve_conv_handler)
+    dispatcher.add_handler(register_conv_handler())
+    dispatcher.add_handler(approve_conv_handler())
     
     
     logger.info("telebot started")
