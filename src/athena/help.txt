@@ -1,0 +1,3 @@
+Welcome to PL3 Telegram Bot to help collate SFT records
+
+Please type '/start' to get started on the commands, you can also issue a 'cancel' command to cancel your current action any time.

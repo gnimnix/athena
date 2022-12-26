@@ -3,22 +3,46 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
-import asyncio
 
-from telethon.sync import TelegramClient
+from threading import Event
+from typing import Optional
 
+from telegram.ext import Updater, CommandHandler
 
-def create_bot(loop):
-    api_id = os.getenv("TELEGRAM_API_ID")
-    api_hash = os.getenv("TELEGRAM_API_HASH")
-    bot = TelegramClient('bot', int(api_id), api_hash, loop=loop)
-    bot.session.db = None
-    return bot
+from athena.log import get_logger
 
 
-loop = asyncio.get_event_loop()
-bot = create_bot(loop)
+class Session:
+    def __init__(self):
+        self.db = None
+
+session = Session()
 
 
-# This can only be imported after bot creation
-from athena.db import get_db, init_db
+def start_bot() -> None:
+    """Starts the Telegram Bot
+    """
+    logger = get_logger()
+    
+    # Create the dirs
+    from athena.config import INSTANCE_FOLDER, UPLOAD_FOLDER
+    try:
+        for folder in [INSTANCE_FOLDER, UPLOAD_FOLDER]:
+            os.mkdir(folder.resolve())
+    except OSError:
+        pass
+    
+    updater = Updater(token=os.getenv("TELEGRAM_BOT_TOKEN"), use_context=True)
+    logger.info(f"Bot #{updater.bot.id} has logged in")
+    dispatcher = updater.dispatcher
+    
+    
+    from athena.app import start, user_help
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('help', user_help))
+    
+    
+    logger.info("telebot started")
+
+    updater.start_polling()
+    updater.idle()
