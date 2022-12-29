@@ -35,7 +35,7 @@ def start(update: Update, context: CallbackContext) -> None:
     # Only users with 3 and above access level can approve off request
     if get_auth_level(user.id) >= 3:
         keyboard.append(
-            [InlineKeyboardButton("Approve Application (Not Implemented)", callback_data="4")])
+            [InlineKeyboardButton("Approve Application", callback_data="approve application")])
     update.message.reply_text("Choose Option: ",
                               reply_markup=InlineKeyboardMarkup(keyboard))
     

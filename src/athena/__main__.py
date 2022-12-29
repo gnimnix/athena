@@ -30,3 +30,5 @@ if __name__ == '__main__':
                 'team': '0',
                 'level': 3
             }
+            
+        print("Initiated the database")

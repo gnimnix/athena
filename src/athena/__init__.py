@@ -51,6 +51,9 @@ def start_bot() -> None:
     dispatcher.add_handler(register_conv_handler())
     dispatcher.add_handler(approve_conv_handler())
     
+    from athena.report import report_handler
+    dispatcher.add_handler(CallbackQueryHandler(report_handler, pattern="^generate report$"))
+    
     
     logger.info("telebot started")
 

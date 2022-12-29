@@ -11,4 +11,4 @@ HELP_FILE = ROOT_PATH / 'help.txt'
 DATABASE = INSTANCE_FOLDER / 'app.db'
 
 ## DATE FORMATTING
-DATE_FORMAT = "%Y-%m-%d_%H:%M:%S.%f"
+DATE_FORMAT = "%Y-%m-%d_%H-%M-%S-%f"

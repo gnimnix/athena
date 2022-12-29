@@ -13,7 +13,7 @@ class RegisterConversationHandler(ExtConversationHandler):
 
     def __init__(self):
         super().__init__(entry_points=[
-            MessageHandler(Filters.regex("^Register$"), self.register)
+            MessageHandler(Filters.regex("^Register$"), self.register),
         ],
                          states={
                              self.__class__.NAME:
@@ -97,7 +97,10 @@ def auth_required(level):
 
         @functools.wraps(func)
         def check_auth(obj=None, update=None, context=None):
-            user = update.message.from_user
+            if update.message is None:
+                user = update.callback_query.from_user
+            else:
+                user = update.message.from_user
             with get_db() as db:
                 if user.id in db['users'] and\
                     db['users'][user.id]['level'] >= level:
@@ -118,8 +121,7 @@ class ApproveApplicationConversationHandler(ExtConversationHandler):
     def __init__(self):
         super().__init__(
             entry_points=[
-                MessageHandler(Filters.regex("^Approve Application$"),
-                               self.authenticate)
+                CallbackQueryHandler(self.authenticate, pattern="^approve application$")
             ],
             states={
                 self.__class__.AUTH: [
@@ -134,19 +136,22 @@ class ApproveApplicationConversationHandler(ExtConversationHandler):
     def authenticate(self, update, context):
         logger = get_logger()
         
-        user = update.message.from_user
+        query = update.callback_query
+        query.answer()
+        
+        user = query.from_user
         logger.info("User %s began approving an application", user.id)
 
         self.reset()
         with get_db() as db:
             if len(db['applications']) == 0:
-                update.message.reply_text("There are no more applications")
+                query.edit_message_text("There are no more applications")
                 self.reset()
                 return ConversationHandler.END
             else:
-                update.message.reply_text(
-                    f"There are currently {len(db['applications'])} \n\
-                    Team 0 is PLHQ.")
+                query.edit_message_text(
+                    f"There is/are currently {len(db['applications'])} applications"
+                    )
                 for i, (user_id,
                         info) in enumerate(db['applications'].items()):
                     keyboard = [[
@@ -158,8 +163,8 @@ class ApproveApplicationConversationHandler(ExtConversationHandler):
                                              str(user_id))
                     ]]
                     reply_markup = InlineKeyboardMarkup(keyboard)
-                    update.message.reply_text(
-                        f"{i}. {info['name']} registered for team {info['team_no']}",
+                    query.message.reply_text(
+                        f"{i+1}. {info['name']} registered for team {info['team_no']}",
                         reply_markup=reply_markup)
 
         self.CURR_STATE = self.AUTH
@@ -173,7 +178,10 @@ class ApproveApplicationConversationHandler(ExtConversationHandler):
 
         query.edit_message_text(
             text=
-            f"Please enter the administrative level of user\n1 - Enlistees\n2 - Team Commanders\n3 - Administrators, Platoon Commanders and PWO"
+            "Please enter the administrative level of user\n"
+            "1- Enlistees\n"
+            "2 - Team Commanders\n"
+            "3 - Administrators, Platoon Commanders and PWO"
         )
 
         self.CURR_STATE = self.LEVEL
@@ -213,8 +221,8 @@ class ApproveApplicationConversationHandler(ExtConversationHandler):
                 del db['applications'][user_id]
             info = db['users'][user_id]
 
-            update.message.reply_text(f"Successfully registered {info['name']}\
-                with team {info['team']} with auth level {info['level']}")
+            update.message.reply_text(f"Successfully registered {info['name']}"
+                f"with team {info['team']} with auth level {info['level']}")
             user = update.message.from_user
             logger.info("User %s approved user %s with admin level %s",
                         user.id, user_id, info['level'])

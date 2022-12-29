@@ -28,7 +28,7 @@ def sft_submenu_start(update: Update, context: CallbackContext):
 
     if get_auth_level(query.from_user.id) >= 3:
         keyboard.append([
-            InlineKeyboardButton("Generate Report (Not Implemented)",
+            InlineKeyboardButton("Generate Report",
                                  callback_data="generate report")
         ])
     query.edit_message_reply_markup(
@@ -169,10 +169,14 @@ class AddSFTConversationHandler(ExtConversationHandler):
         if text.lower() in ['n', 'no']:
             return self.sft(update, context)
 
+        user_id = update.message.from_user.id
         with get_db() as db:
-            db[update.message.from_user.id][
+            if user_id not in db['records']:
+                db['records'][user_id] = []
+            db['records'][user_id].append({
                 context.user_data['sft_date'].strftime(
-                    '%d%m%y')] = context.user_data['sft_photo_filepath']
+                    '%d%m%y'): context.user_data['sft_photo_filepath']
+            }) 
 
         update.message.reply_text("Successfully uploaded record")
 
