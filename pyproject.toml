@@ -8,5 +8,9 @@ version = "0.0.1a"
 authors = [
   { name="Lu Xinming", email="lu_xinming@rvhs.edu.sg" },
 ]
+dependencies = [
+    "python-telegram-bot",
+    "Xlsxwriter",
+]
 description = "Telegram Bot for 36 SCE"
 readme = "README.md"
