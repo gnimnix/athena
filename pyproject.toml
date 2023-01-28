@@ -11,6 +11,7 @@ authors = [
 dependencies = [
     "python-telegram-bot",
     "Xlsxwriter",
+    "python-dotenv"
 ]
 description = "Telegram Bot for 36 SCE"
 readme = "README.md"
